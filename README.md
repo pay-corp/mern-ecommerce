@@ -6,40 +6,35 @@ An ecommerce store built with MERN stack, and utilizes third party API's. This e
 
 1. Buyers browse the store categories, products and brands
 2. Sellers or Merchants manage their own brand component
-3. Admins manage and control the entire store components 
+3. Admins manage and control the entire store components
 
+- features:
+  - Node provides the backend environment for this application
+  - Express middleware is used to handle requests, routes
+  - Mongoose schemas to model the application data
+  - React for displaying UI components
+  - Redux to manage application's state
+  - Redux Thunk middleware to handle asynchronous redux actions
 
-* features:
-  * Node provides the backend environment for this application
-  * Express middleware is used to handle requests, routes
-  * Mongoose schemas to model the application data
-  * React for displaying UI components
-  * Redux to manage application's state
-  * Redux Thunk middleware to handle asynchronous redux actions
+## What's Next
 
-
-
-## What's Next 
-
-  * Add a payment method solution to enable checkout and collecting payments
-  * Associate each Merchant to a payment account 
-  * Enable Admins to disable a category, product or a brand
-  * Enable Admins to manage users module
-  * Enable Merchants disable their own brand and products
-  * Enable Merchants to add products to a specific category
-
+- Add a payment method solution to enable checkout and collecting payments
+- Associate each Merchant to a payment account
+- Enable Admins to disable a category, product or a brand
+- Enable Admins to manage users module
+- Enable Merchants disable their own brand and products
+- Enable Merchants to add products to a specific category
 
 <!-- ## Demo
 
 This application is deployed on Heroku. Please check it out :smile: [here](https://mern-store-80202.herokuapp.com/). -->
-
 
 ## Install
 
 Some basic Git commands are:
 
 ```
-$ git clone 
+$ git clone
 $ cd project
 $ npm install
 ```
@@ -58,12 +53,11 @@ $ npm install
   * AWS_ACCESS_KEY_ID & AWS_SECRET_ACCESS_KEY & AWS_REGION & AWS_BUCKET_NAME => AWS configuration
 ```
 
-## Heroku Deployment
+## [Heroku](https://www.heroku.com/) Deployment
 
 ```
 > Create a Procfile in the root directory of your application with the following command **web: npm run start:production**
 ```
-
 
 ## Simple build for production
 
@@ -83,7 +77,6 @@ $ npm start
 $ npm run start:production
 ```
 
-
 ## Languages & tools
 
 - [Node](https://nodejs.org/en/)
@@ -96,3 +89,16 @@ $ npm run start:production
 
 - [Webpack](https://webpack.js.org/)
 
+- [PassportJS](http://www.passportjs.org/)
+
+- [Axios](https://github.com/axios/axios)
+
+- [Validatorjs](https://github.com/mikeerickson/validatorjs#readme)
+
+## External services
+
+- [Mailgun](https://www.mailgun.com/)
+
+- [Mailchimp](https://mailchimp.com/)
+
+- [Aws s3 bucket](https://aws.amazon.com/s3/)
