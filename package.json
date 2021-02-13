@@ -14,7 +14,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mohamedsamara/mern-ecommerce.git"
   },
   "keywords": [
     "node",
@@ -25,12 +24,9 @@
     "redux-thunk",
     "webpack"
   ],
-  "author": "Mohamed Samara (https://github.com/mohamedsamara)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mohamedsamara/mern-ecommerce/issues"
   },
-  "homepage": "https://github.com/mohamedsamara/mern-ecommerce#readme",
   "dependencies": {
     "aws-sdk": "^2.799.0",
     "axios": "^0.21.1",

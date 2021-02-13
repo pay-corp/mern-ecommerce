@@ -29,9 +29,9 @@ An ecommerce store built with MERN stack, and utilizes third party API's. This e
   * Enable Merchants to add products to a specific category
 
 
-## Demo
+<!-- ## Demo
 
-This application is deployed on Heroku. Please check it out :smile: [here](https://mern-store-80202.herokuapp.com/).
+This application is deployed on Heroku. Please check it out :smile: [here](https://mern-store-80202.herokuapp.com/). -->
 
 
 ## Install
@@ -39,7 +39,7 @@ This application is deployed on Heroku. Please check it out :smile: [here](https
 Some basic Git commands are:
 
 ```
-$ git clone https://github.com/mohamedsamara/mern-ecommerce.git
+$ git clone 
 $ cd project
 $ npm install
 ```

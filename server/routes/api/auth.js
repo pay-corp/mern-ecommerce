@@ -1,49 +1,49 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const passport = require('passport');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const passport = require("passport");
 
-const auth = require('../../middleware/auth');
+const auth = require("../../middleware/auth");
 
 // Bring in Models & Helpers
-const User = require('../../models/user');
-const mailchimp = require('../../services/mailchimp');
-const mailgun = require('../../services/mailgun');
-const keys = require('../../config/keys');
+const User = require("../../models/user");
+const mailchimp = require("../../services/mailchimp");
+const mailgun = require("../../services/mailgun");
+const keys = require("../../config/keys");
 
 const { secret, tokenLife } = keys.jwt;
 
-router.post('/login', (req, res) => {
+router.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
   if (!email) {
-    return res.status(400).json({ error: 'You must enter an email address.' });
+    return res.status(400).json({ error: "You must enter an email address." });
   }
 
   if (!password) {
-    return res.status(400).json({ error: 'You must enter a password.' });
+    return res.status(400).json({ error: "You must enter a password." });
   }
 
-  User.findOne({ email }).then(user => {
+  User.findOne({ email }).then((user) => {
     if (!user) {
       return res
         .status(400)
-        .send({ error: 'No user found for this email address.' });
+        .send({ error: "No user found for this email address." });
     }
 
     if (!user) {
       return res
         .status(400)
-        .send({ error: 'No user found for this email address.' });
+        .send({ error: "No user found for this email address." });
     }
 
-    bcrypt.compare(password, user.password).then(isMatch => {
+    bcrypt.compare(password, user.password).then((isMatch) => {
       if (isMatch) {
         const payload = {
-          id: user.id
+          id: user.id,
         };
 
         jwt.sign(payload, secret, { expiresIn: tokenLife }, (err, token) => {
@@ -55,21 +55,21 @@ router.post('/login', (req, res) => {
               firstName: user.firstName,
               lastName: user.lastName,
               email: user.email,
-              role: user.role
-            }
+              role: user.role,
+            },
           });
         });
       } else {
         res.status(400).json({
           success: false,
-          error: 'Password Incorrect'
+          error: "Password Incorrect",
         });
       }
     });
   });
 });
 
-router.post('/register', (req, res) => {
+router.post("/register", (req, res) => {
   const email = req.body.email;
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
@@ -77,15 +77,15 @@ router.post('/register', (req, res) => {
   const isSubscribed = req.body.isSubscribed;
 
   if (!email) {
-    return res.status(400).json({ error: 'You must enter an email address.' });
+    return res.status(400).json({ error: "You must enter an email address." });
   }
 
   if (!firstName || !lastName) {
-    return res.status(400).json({ error: 'You must enter your full name.' });
+    return res.status(400).json({ error: "You must enter your full name." });
   }
 
   if (!password) {
-    return res.status(400).json({ error: 'You must enter a password.' });
+    return res.status(400).json({ error: "You must enter a password." });
   }
 
   User.findOne({ email }, async (err, existingUser) => {
@@ -96,14 +96,14 @@ router.post('/register', (req, res) => {
     if (existingUser) {
       return res
         .status(400)
-        .json({ error: 'That email address is already in use.' });
+        .json({ error: "That email address is already in use." });
     }
 
     let subscribed = false;
     if (isSubscribed) {
       const result = await mailchimp.subscribeToNewsletter(email);
 
-      if (result.status === 'subscribed') {
+      if (result.status === "subscribed") {
         subscribed = true;
       }
     }
@@ -112,31 +112,33 @@ router.post('/register', (req, res) => {
       email,
       password,
       firstName,
-      lastName
+      lastName,
     });
 
     bcrypt.genSalt(10, (err, salt) => {
       bcrypt.hash(user.password, salt, (err, hash) => {
         if (err) {
+          console.log(err);
           return res.status(400).json({
-            error: 'Your request could not be processed. Please try again.'
+            error: "Your request could not be processed. Please try again.",
           });
         }
 
         user.password = hash;
-
+        console.log(user);
         user.save(async (err, user) => {
           if (err) {
+            console.log(err);
             return res.status(400).json({
-              error: 'Your request could not be processed. Please try again.'
+              error: "Your request could not be processed. Please try again.",
             });
           }
 
           const payload = {
-            id: user.id
+            id: user.id,
           };
 
-          await mailgun.sendEmail(user.email, 'signup', null, user.profile);
+          // await mailgun.sendEmail(user.email, "signup", null, user.profile);
 
           jwt.sign(payload, secret, { expiresIn: tokenLife }, (err, token) => {
             res.status(200).json({
@@ -148,8 +150,8 @@ router.post('/register', (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                role: user.role
-              }
+                role: user.role,
+              },
             });
           });
         });
@@ -158,42 +160,42 @@ router.post('/register', (req, res) => {
   });
 });
 
-router.post('/forgot', (req, res) => {
+router.post("/forgot", (req, res) => {
   const email = req.body.email;
 
   if (!email) {
-    return res.status(400).json({ error: 'You must enter an email address.' });
+    return res.status(400).json({ error: "You must enter an email address." });
   }
 
   User.findOne({ email }, (err, existingUser) => {
     if (err || existingUser === null) {
       return res.status(400).json({
         error:
-          'Your request could not be processed as entered. Please try again.'
+          "Your request could not be processed as entered. Please try again.",
       });
     }
 
     crypto.randomBytes(48, (err, buffer) => {
-      const resetToken = buffer.toString('hex');
+      const resetToken = buffer.toString("hex");
       if (err) {
         return res.status(400).json({
-          error: 'Your request could not be processed. Please try again.'
+          error: "Your request could not be processed. Please try again.",
         });
       }
 
       existingUser.resetPasswordToken = resetToken;
       existingUser.resetPasswordExpires = Date.now() + 3600000;
 
-      existingUser.save(async err => {
+      existingUser.save(async (err) => {
         if (err) {
           return res.status(400).json({
-            error: 'Your request could not be processed. Please try again.'
+            error: "Your request could not be processed. Please try again.",
           });
         }
 
         await mailgun.sendEmail(
           existingUser.email,
-          'reset',
+          "reset",
           req.headers.host,
           resetToken
         );
@@ -201,30 +203,30 @@ router.post('/forgot', (req, res) => {
         res.status(200).json({
           success: true,
           message:
-            'Please check your email for the link to reset your password.'
+            "Please check your email for the link to reset your password.",
         });
       });
     });
   });
 });
 
-router.post('/reset/:token', (req, res) => {
+router.post("/reset/:token", (req, res) => {
   const password = req.body.password;
 
   if (!password) {
-    return res.status(400).json({ error: 'You must enter a password.' });
+    return res.status(400).json({ error: "You must enter a password." });
   }
 
   User.findOne(
     {
       resetPasswordToken: req.params.token,
-      resetPasswordExpires: { $gt: Date.now() }
+      resetPasswordExpires: { $gt: Date.now() },
     },
     (err, resetUser) => {
       if (!resetUser) {
         return res.status(400).json({
           error:
-            'Your token has expired. Please attempt to reset your password again.'
+            "Your token has expired. Please attempt to reset your password again.",
         });
       }
       bcrypt.genSalt(10, (err, salt) => {
@@ -232,7 +234,7 @@ router.post('/reset/:token', (req, res) => {
           if (err) {
             return res.status(400).json({
               error:
-                'Your request could not be processed as entered. Please try again.'
+                "Your request could not be processed as entered. Please try again.",
             });
           }
           req.body.password = hash;
@@ -241,20 +243,20 @@ router.post('/reset/:token', (req, res) => {
           resetUser.resetPasswordToken = undefined;
           resetUser.resetPasswordExpires = undefined;
 
-          resetUser.save(async err => {
+          resetUser.save(async (err) => {
             if (err) {
               return res.status(400).json({
                 error:
-                  'Your request could not be processed as entered. Please try again.'
+                  "Your request could not be processed as entered. Please try again.",
               });
             }
 
-            await mailgun.sendEmail(resetUser.email, 'reset-confirmation');
+            await mailgun.sendEmail(resetUser.email, "reset-confirmation");
 
             res.status(200).json({
               success: true,
               message:
-                'Password changed successfully. Please login with your new password.'
+                "Password changed successfully. Please login with your new password.",
             });
           });
         });
@@ -263,19 +265,19 @@ router.post('/reset/:token', (req, res) => {
   );
 });
 
-router.post('/reset', auth, (req, res) => {
+router.post("/reset", auth, (req, res) => {
   const email = req.user.email;
   const password = req.body.password;
 
   if (!password) {
-    return res.status(400).json({ error: 'You must enter a password.' });
+    return res.status(400).json({ error: "You must enter a password." });
   }
 
   User.findOne({ email }, (err, existingUser) => {
     if (err || existingUser === null) {
       return res.status(400).json({
         error:
-          'Your request could not be processed as entered. Please try again.'
+          "Your request could not be processed as entered. Please try again.",
       });
     }
 
@@ -284,27 +286,27 @@ router.post('/reset', auth, (req, res) => {
         if (err) {
           return res.status(400).json({
             error:
-              'Your request could not be processed as entered. Please try again.'
+              "Your request could not be processed as entered. Please try again.",
           });
         }
         req.body.password = hash;
 
         existingUser.password = req.body.password;
 
-        existingUser.save(async err => {
+        existingUser.save(async (err) => {
           if (err) {
             return res.status(400).json({
               error:
-                'Your request could not be processed as entered. Please try again.'
+                "Your request could not be processed as entered. Please try again.",
             });
           }
 
-          await mailgun.sendEmail(existingUser.email, 'reset-confirmation');
+          await mailgun.sendEmail(existingUser.email, "reset-confirmation");
 
           res.status(200).json({
             success: true,
             message:
-              'Password changed successfully. Please login with your new password.'
+              "Password changed successfully. Please login with your new password.",
           });
         });
       });
@@ -312,82 +314,82 @@ router.post('/reset', auth, (req, res) => {
   });
 });
 
-router.get(
-  '/google',
-  passport.authenticate('google', {
-    session: false,
-    scope: ['profile', 'email'],
-    accessType: 'offline',
-    approvalPrompt: 'force'
-  })
-);
+// router.get(
+//   '/google',
+//   passport.authenticate('google', {
+//     session: false,
+//     scope: ['profile', 'email'],
+//     accessType: 'offline',
+//     approvalPrompt: 'force'
+//   })
+// );
 
-router.get(
-  '/google/callback',
-  passport.authenticate('google', {
-    failureRedirect: '/login',
-    session: false
-  }),
-  (req, res) => {
-    const payload = {
-      id: req.user.id
-    };
+// router.get(
+//   "/google/callback",
+//   passport.authenticate("google", {
+//     failureRedirect: "/login",
+//     session: false,
+//   }),
+//   (req, res) => {
+//     const payload = {
+//       id: req.user.id,
+//     };
 
-    jwt.sign(payload, secret, { expiresIn: tokenLife }, (err, token) => {
-      const jwt = `Bearer ${token}`;
+//     jwt.sign(payload, secret, { expiresIn: tokenLife }, (err, token) => {
+//       const jwt = `Bearer ${token}`;
 
-      const htmlWithEmbeddedJWT = `
-    <html>
-      <script>
-        // Save JWT to localStorage
-        window.localStorage.setItem('token', '${jwt}');
-        // Redirect browser to root of application
-        window.location.href = '/auth/success';
-      </script>
-    </html>       
-    `;
+//       const htmlWithEmbeddedJWT = `
+//     <html>
+//       <script>
+//         // Save JWT to localStorage
+//         window.localStorage.setItem('token', '${jwt}');
+//         // Redirect browser to root of application
+//         window.location.href = '/auth/success';
+//       </script>
+//     </html>
+//     `;
 
-      res.send(htmlWithEmbeddedJWT);
-    });
-  }
-);
+//       res.send(htmlWithEmbeddedJWT);
+//     });
+//   }
+// );
 
-router.get(
-  '/facebook',
-  passport.authenticate('facebook', {
-    session: false,
-    scope: ['public_profile', 'email']
-  })
-);
+// router.get(
+//   "/facebook",
+//   passport.authenticate("facebook", {
+//     session: false,
+//     scope: ["public_profile", "email"],
+//   })
+// );
 
-router.get(
-  '/facebook/callback',
-  passport.authenticate('facebook', {
-    failureRedirect: '/',
-    session: false
-  }),
-  (req, res) => {
-    const payload = {
-      id: req.user.id
-    };
+// router.get(
+//   "/facebook/callback",
+//   passport.authenticate("facebook", {
+//     failureRedirect: "/",
+//     session: false,
+//   }),
+//   (req, res) => {
+//     const payload = {
+//       id: req.user.id,
+//     };
 
-    jwt.sign(payload, secret, { expiresIn: tokenLife }, (err, token) => {
-      const jwt = `Bearer ${token}`;
+//     jwt.sign(payload, secret, { expiresIn: tokenLife }, (err, token) => {
+//       const jwt = `Bearer ${token}`;
 
-      const htmlWithEmbeddedJWT = `
-    <html>
-      <script>
-        // Save JWT to localStorage
-        window.localStorage.setItem('token', '${jwt}');
-        // Redirect browser to root of application
-        window.location.href = '/auth/success';
-      </script>
-    </html>       
-    `;
+//       const htmlWithEmbeddedJWT = `
+//     <html>
+//       <script>
+//         // Save JWT to localStorage
+//         window.localStorage.setItem('token', '${jwt}');
+//         // Redirect browser to root of application
+//         window.location.href = '/auth/success';
+//       </script>
+//     </html>
+//     `;
 
-      res.send(htmlWithEmbeddedJWT);
-    });
-  }
-);
+//       res.send(htmlWithEmbeddedJWT);
+//     });
+//   }
+// );
 
 module.exports = router;

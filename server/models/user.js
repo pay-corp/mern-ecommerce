@@ -1,4 +1,4 @@
-const Mongoose = require('mongoose');
+const Mongoose = require("mongoose");
 
 const { Schema } = Mongoose;
 
@@ -7,51 +7,49 @@ const UserSchema = new Schema({
   email: {
     type: String,
     required: () => {
-      return this.provider !== 'email' ? false : true;
-    }
+      return this.provider !== "email" ? false : true;
+    },
   },
   firstName: {
-    type: String
+    type: String,
   },
   lastName: {
-    type: String
+    type: String,
   },
   password: {
-    type: String
+    type: String,
   },
   merchant: {
     type: Schema.Types.ObjectId,
-    ref: 'Merchant',
-    default: null
+    ref: "Merchant",
+    default: null,
   },
   provider: {
     type: String,
     required: true,
-    default: 'email'
+    default: "email",
   },
   googleId: {
     type: String,
-    unique: true
   },
   facebookId: {
     type: String,
-    unique: true
   },
   avatar: {
-    type: String
+    type: String,
   },
   role: {
     type: String,
-    default: 'ROLE_MEMBER',
-    enum: ['ROLE_MEMBER', 'ROLE_ADMIN', 'ROLE_MERCHANT']
+    default: "ROLE_MEMBER",
+    enum: ["ROLE_MEMBER", "ROLE_ADMIN", "ROLE_MERCHANT"],
   },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
   updated: Date,
   created: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-module.exports = Mongoose.model('User', UserSchema);
+module.exports = Mongoose.model("User", UserSchema);
