@@ -57,24 +57,24 @@ router.post(
       let imageKey = "";
 
       if (image) {
-        // const s3bucket = new AWS.S3({
-        //   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        //   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        //   region: process.env.AWS_REGION,
-        // });
+        const s3bucket = new AWS.S3({
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+          region: process.env.AWS_REGION,
+        });
 
-        // const params = {
-        //   Bucket: process.env.AWS_BUCKET_NAME,
-        //   Key: image.originalname,
-        //   Body: image.buffer,
-        //   ContentType: image.mimetype,
-        //   ACL: "public-read",
-        // };
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: image.originalname,
+          Body: image.buffer,
+          ContentType: image.mimetype,
+          ACL: "public-read",
+        };
 
-        // const s3Upload = await s3bucket.upload(params).promise();
+        const s3Upload = await s3bucket.upload(params).promise();
 
-        imageUrl = ""; //s3Upload.Location;
-        imageKey = ""; //s3Upload.key;
+        imageUrl = s3Upload.Location;
+        imageKey = s3Upload.key;
       }
 
       const product = new Product({
